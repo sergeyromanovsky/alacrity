@@ -83,6 +83,7 @@ describe('Home', () => {
     expect(getByTestId(LOADER_TEST_ID)).toBeInTheDocument();
   });
 
+  // bug with Data-grid while running tests, It doesn't render stuff (i guess something related to windowing concept)
   it.skip('should render the fetched book list', async () => {
     const { getByText } = render(
       <AppWrapper>
