@@ -7,13 +7,20 @@ import { useForm, Controller } from 'react-hook-form';
 import { Flex } from 'components/Flex/styled';
 import { onlyNumbersAndDot } from 'utils/normalize';
 
-type IFormValues = Omit<Book, 'bookId'>;
+export type IFormValues = Omit<Book, 'bookId'>;
 
 const inputStyles = {
   marginRight: '1rem',
 };
-export interface IProps extends Omit<DialogProps, 'children'> {
+
+export const BOOK_DIALOG_TEST_ID = 'book-dialog';
+export const AUTHOR_INPUT_TEST_ID = 'authour-input';
+export const PRICE_INPUT_TEST_ID = 'price-input';
+export const TITLE_INPUT_TEST_ID = 'title-input';
+
+export interface IProps extends Omit<DialogProps, 'children' | 'onSubmit'> {
   initialValue?: IFormValues;
+  onSubmit: (values: IFormValues) => void;
 }
 
 function BookForm({ initialValue, onSubmit, ...rest }: IProps) {
@@ -25,7 +32,7 @@ function BookForm({ initialValue, onSubmit, ...rest }: IProps) {
     setValue('price', onlyNumbersAndDot(e.target.value));
 
   return (
-    <Dialog {...rest} onSubmit={handleSubmit(onSubmit)}>
+    <Dialog {...rest} onSubmit={handleSubmit(onSubmit)} testId={BOOK_DIALOG_TEST_ID}>
       <Flex style={{ marginBottom: '2rem' }}>
         <Input
           inputRef={register({ required: 'Required' })}
@@ -35,6 +42,7 @@ function BookForm({ initialValue, onSubmit, ...rest }: IProps) {
           placeholder="Title"
           label="Title"
           errors={errors}
+          InputProps={{ inputProps: { 'data-testid': TITLE_INPUT_TEST_ID } }}
         />
         <Input
           inputRef={register({ required: 'Required' })}
@@ -44,19 +52,22 @@ function BookForm({ initialValue, onSubmit, ...rest }: IProps) {
           placeholder="Author"
           label="Author"
           errors={errors}
+          InputProps={{ inputProps: { 'data-testid': AUTHOR_INPUT_TEST_ID } }}
         />
         <Controller
           name="price"
           control={control}
-          render={(props: any) => (
+          defaultValue={initialValue?.price || ''}
+          render={({ ref, ...rest }) => (
             <Input
-              {...props}
+              {...rest}
+              inputRef={ref}
               onChange={handlePriceChange}
               variant="outlined"
               placeholder="Price"
               label="Price"
               errors={errors}
-              name="price"
+              InputProps={{ inputProps: { 'data-testid': PRICE_INPUT_TEST_ID } }}
             />
           )}
           rules={{ required: 'Required' }}

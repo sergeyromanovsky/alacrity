@@ -14,11 +14,29 @@ export interface IProps {
   onClose: () => void;
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
   actionButtonTitle?: string;
+  testId?: string;
 }
 
-function Dialog({ open, onClose, title, actionButtonTitle = 'Edit', onSubmit, children }: IProps) {
+export const ACTION_BUTTON_TEST_ID = 'action-button';
+
+function Dialog({
+  open,
+  onClose,
+  title,
+  actionButtonTitle = 'Edit',
+  onSubmit,
+  children,
+  testId,
+}: IProps) {
   return (
-    <MaterialDialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <MaterialDialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      // @ts-expect-error
+      PaperProps={{ 'data-testid': testId }}
+    >
       <form onSubmit={onSubmit as any}>
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>{children}</DialogContent>
@@ -26,7 +44,12 @@ function Dialog({ open, onClose, title, actionButtonTitle = 'Edit', onSubmit, ch
           <Button onClick={onClose} color="primary">
             Cancel
           </Button>
-          <Button type="submit" color="primary" variant="contained">
+          <Button
+            type="submit"
+            color="primary"
+            variant="contained"
+            data-testid={ACTION_BUTTON_TEST_ID}
+          >
             {actionButtonTitle}
           </Button>
         </DialogActions>

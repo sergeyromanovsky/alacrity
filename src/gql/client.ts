@@ -1,10 +1,11 @@
 import { ApolloClient, InMemoryCache, from, HttpLink } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
+import { toast } from 'react-toastify';
 
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message }) => {
-      alert(message);
+      toast.error(message);
     });
   }
 });

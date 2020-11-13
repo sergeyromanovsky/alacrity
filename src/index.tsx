@@ -1,19 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './pages/';
-import { BrowserRouter } from 'react-router-dom';
-import { ApolloProvider } from '@apollo/client';
-import { client } from 'gql/client';
 import { GlobalStyle } from './globalStyles';
+import AppWrapper from 'wrapper';
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ApolloProvider client={client}>
-        <GlobalStyle />
-        <App />
-      </ApolloProvider>
-    </BrowserRouter>
+    <AppWrapper>
+      <App />
+    </AppWrapper>
+    <GlobalStyle />
   </React.StrictMode>,
   document.getElementById('root')
 );

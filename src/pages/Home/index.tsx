@@ -4,20 +4,30 @@ import Loader from 'components/Loader';
 import BookDialog from 'pages/Home/BookDialog';
 import AddIcon from '@material-ui/icons/Add';
 
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_BOOKS } from 'gql/book/get-books';
 import { GetBooks, GetBooks_books } from 'gql/book/__generated__/GetBooks';
 import { ColDef, ColParams, RowSelectedParams } from '@material-ui/data-grid';
 import { StyledButton, StyledEditIcon, Wrapper } from './styled';
 import { Book } from 'gql/book/__generated__/Book';
 import { IProps as BookDialogProps } from './BookDialog';
+import { EDIT_BOOK } from 'gql/book/edit-book';
+import { EditBook, EditBookVariables } from 'gql/book/__generated__/EditBook';
+import { CREATE_BOOK } from 'gql/book/create-book';
+import { CreateBook, CreateBookVariables } from 'gql/book/__generated__/CreateBook';
+import { IFormValues } from './BookDialog';
+import { toast } from 'react-toastify';
 
 type IDialogMeta = Omit<BookDialogProps, 'onClose'>;
+
+export const CREATE_BOOK_BUTTON_TEST_ID = 'create-book-button';
 
 function Home() {
   const { data } = useQuery<GetBooks>(GET_BOOKS);
   const [dialogMeta, setDialogMeta] = useState<IDialogMeta | null>(null);
   const [selectedBooks, setSelectedBooks] = useState<Book[]>([]);
+  const [editBook] = useMutation<EditBook, EditBookVariables>(EDIT_BOOK);
+  const [createBook] = useMutation<CreateBook, CreateBookVariables>(CREATE_BOOK);
 
   const updatedBooks = useMemo(() => {
     const filtered = data?.books?.filter(Boolean) as GetBooks_books[];
@@ -34,7 +44,25 @@ function Home() {
       open: true,
       title: 'Create New Book',
       actionButtonTitle: 'Create',
-      onSubmit: (val: any) => console.log(val),
+      onSubmit: async ({ price, ...rest }: IFormValues) => {
+        await createBook({
+          variables: { ...rest, price: +price },
+          update: (cache, { data }) => {
+            if (data?.createBook) {
+              toast.success(`${data.createBook.title} was successfully created !`);
+              cache.modify({
+                fields: {
+                  books(existingBooks: Book[] = []) {
+                    const updatedBooks = [data.createBook, ...existingBooks];
+                    return updatedBooks;
+                  },
+                },
+              });
+              handleCloseDialog();
+            }
+          },
+        });
+      },
     });
   }, []);
 
@@ -45,7 +73,29 @@ function Home() {
         initialValue: book,
         title: book.title,
         actionButtonTitle: 'Edit',
-        onSubmit: (val: any) => console.log('submit', val),
+        onSubmit: async ({ price, ...rest }: IFormValues) => {
+          await editBook({
+            variables: { ...rest, price: +price, bookId: book.bookId },
+            update: (cache, { data }) => {
+              if (data?.editBook) {
+                toast.success(`${data.editBook.title} was successfully edited !`);
+                cache.modify({
+                  fields: {
+                    books(existingBooks: Book[] = []) {
+                      const updatedBookIndex = existingBooks.findIndex(
+                        ({ bookId }) => bookId === book.bookId
+                      );
+                      const updatedBooks = [...existingBooks];
+                      updatedBooks.splice(updatedBookIndex, 1, data.editBook!);
+                      return updatedBooks;
+                    },
+                  },
+                });
+                handleCloseDialog();
+              }
+            },
+          });
+        },
       });
     };
     return [
@@ -109,6 +159,7 @@ function Home() {
         variant="contained"
         color="primary"
         onClick={handleCreateBook}
+        data-testid={CREATE_BOOK_BUTTON_TEST_ID}
       >
         Create Book
       </StyledButton>
