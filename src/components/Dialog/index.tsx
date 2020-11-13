@@ -18,7 +18,7 @@ export interface IProps {
 
 function Dialog({ open, onClose, title, actionButtonTitle = 'Edit', onSubmit, children }: IProps) {
   return (
-    <MaterialDialog open={open} onClose={onClose} fullWidth>
+    <MaterialDialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <form onSubmit={onSubmit as any}>
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>{children}</DialogContent>

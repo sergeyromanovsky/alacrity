@@ -1,30 +1,27 @@
 import React from 'react';
-import { DataGrid, ColDef, GridComponentProps, ColParams } from '@material-ui/data-grid';
-import { Wrapper } from './styled';
+import { DataGrid, ColDef, GridComponentProps } from '@material-ui/data-grid';
+import { Wrapper, FooterWrapper } from './styled';
 
 interface IProps {
   data: GridComponentProps['rows'];
   columns: ColDef[];
   onRowSelected: GridComponentProps['onRowSelected'];
+  onColumnHeaderClick: GridComponentProps['onColumnHeaderClick'];
+  footerChildren: React.ReactNode;
 }
 
-const PER_PAGE_OPTIONS = [10, 25, 50, 100];
-
-function Table({ data, ...rest }: IProps) {
-  const handleColumnClick = ({ field, api }: ColParams) => {
-    if (field === '__check__') {
-      console.log('api', api.state);
-    }
-  };
+function Table({ data, footerChildren, ...rest }: IProps) {
   return (
     <Wrapper>
       <DataGrid
         checkboxSelection
         {...rest}
         rows={data}
-        rowsPerPageOptions={PER_PAGE_OPTIONS}
-        onColumnHeaderClick={handleColumnClick}
         disableSelectionOnClick
+        disableColumnResize
+        components={{
+          footer: () => <FooterWrapper>{footerChildren}</FooterWrapper>,
+        }}
       />
     </Wrapper>
   );

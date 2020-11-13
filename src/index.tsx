@@ -10,7 +10,7 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <ApolloProvider client={client}>
-          <GlobalStyle />
+        <GlobalStyle />
         <App />
       </ApolloProvider>
     </BrowserRouter>
